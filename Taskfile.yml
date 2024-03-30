@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - docker compose build
+
+  up:
+    cmds:
+      - docker compose up
+
+  bootstrap:
+    cmds:
+      - docker compose up --build
