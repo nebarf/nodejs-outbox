@@ -1,0 +1,79 @@
+version: "2"
+name: nodejs-outbox
+services:
+  rabbitmq:
+    build:
+      context: ./.docker/rabbitmq
+      dockerfile: Dockerfile
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+      - 5552:5552
+    healthcheck:
+      test: "rabbitmq-diagnostics check_port_connectivity"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      RABBITMQ_DEFAULT_PASS: root
+      RABBITMQ_DEFAULT_USER: root
+
+  order-db:
+    build:
+      context: ./.docker/order-db
+      dockerfile: Dockerfile
+    container_name: order-db
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: "pg_isready -U postgres -d orderdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=orderdb
+
+  shipment-db:
+    build:
+      context: ./.docker/shipment-db
+      dockerfile: Dockerfile
+    container_name: shipment-db
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: "pg_isready -U postgres -d shipmentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=shipmentdb
+
+  debezium-server:
+    build:
+      context: ./.docker/debezium
+      dockerfile: Dockerfile
+    container_name: debezium-server
+    ports:
+      - 8080:8080
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      order-db:
+        condition: service_started
+    environment:
+      - DATABASE_HOSTNAME=order-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=orderdb
+      - DATABASE_SCHEMA=orders
+      - DATABASE_OUTBOX_TABLE=outboxevent
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=root
+      - RABBITMQ_PASSWORD=root
