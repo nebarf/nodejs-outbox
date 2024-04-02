@@ -78,3 +78,29 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=root
       - RABBITMQ_PASSWORD=root
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: ../.docker/order-service/Dockerfile
+    container_name: order-service
+    ports:
+      - 3000:3000
+    depends_on:
+      debezium-server:
+        condition: service_started
+      order-db:
+        condition: service_healthy
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - SERVER_PORT=3000
+      - DB_NAME=orderdb
+      - DB_SCHEMA=order
+      - DB_PORT=5432
+      - DB_HOST=order-db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
