@@ -5,11 +5,15 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventsModule } from './event/events.module';
 
 const logger = new Logger('Database');
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
+    EventsModule,
     MikroOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
