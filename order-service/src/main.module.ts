@@ -7,6 +7,7 @@ import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventsModule } from './event/events.module';
+import { RestModule } from './rest/rest.module';
 
 const logger = new Logger('Database');
 
@@ -14,6 +15,7 @@ const logger = new Logger('Database');
   imports: [
     EventEmitterModule.forRoot(),
     EventsModule,
+    RestModule,
     MikroOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
