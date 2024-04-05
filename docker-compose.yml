@@ -104,3 +104,4 @@ services:
       - DB_HOST=order-db
       - DB_USER=postgres
       - DB_PASSWORD=postgres
+      - DB_DEBUG=true

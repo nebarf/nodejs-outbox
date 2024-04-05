@@ -30,6 +30,7 @@ const logger = new Logger('Database');
         port: config.database.port,
         user: config.database.user,
         password: config.database.password,
+        debug: config.database.debug,
         logger: logger.log.bind(logger),
         highlighter: new SqlHighlighter(),
       }),
