@@ -20,7 +20,7 @@ const logger = new Logger('Database');
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        entities: ['./dist/model'],
+        entities: ['./dist/apps/order-service/model'],
         entitiesTs: ['./src/model'],
         forceUtcTimezone: true,
         driver: PostgreSqlDriver,

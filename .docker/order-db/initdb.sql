@@ -3,17 +3,17 @@ CREATE SCHEMA orders;
 SET search_path TO orders;
 
 CREATE TABLE purchase_order (
-	id int8 NOT NULL,
-	customer_id int8 NOT NULL,
+	id serial NOT NULL,
+	customer_id integer NOT NULL,
 	order_date timestamp NULL,
 	CONSTRAINT purchase_order__pk PRIMARY KEY (id)
 );
 
 CREATE TABLE order_line (
-	id int8 NOT NULL,
-	quantity int4 NOT NULL,
+	id serial NOT NULL,
+	quantity integer NOT NULL,
 	total_price decimal(12, 2) NULL,
-	order_id int8 NULL,
+	order_id integer NULL,
 	item varchar(255) NULL,
 	"status" varchar(255) NULL,
 	CONSTRAINT order_line__pk PRIMARY KEY (id),

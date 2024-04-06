@@ -5,7 +5,7 @@ WORKDIR /home/node
 
 COPY --chown=node:node . .
 RUN npm ci
-RUN npm run build
+RUN npm run order:build
 
 ### Stage 2 - Optimize artifact size
 FROM node:20-alpine as prod
@@ -15,4 +15,4 @@ ENV NODE_ENV production
 COPY --chown=node:node --from=builder /home/node/dist ./dist
 COPY --chown=node:node --from=builder /home/node/node_modules node_modules
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/apps/order-service/main"]

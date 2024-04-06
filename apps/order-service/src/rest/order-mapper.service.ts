@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrderRequestDto } from './create-order-request.dto';
-import { PurchaseOrder } from 'src/model/purchase-order.entity';
 import {
   OrderLineItemResponseDto,
   OrderResponseDto,
 } from './order-response.dto';
-import { OrderLine, OrderLineStatus } from 'src/model/order-line.entity';
+import { PurchaseOrder } from '../model/purchase-order.entity';
+import { OrderLine, OrderLineStatus } from '../model/order-line.entity';
 
 @Injectable()
 export class OrderMapperService {

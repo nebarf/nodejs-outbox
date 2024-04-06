@@ -1,11 +1,11 @@
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PurchaseOrder } from '../model/purchase-order.entity';
 import {
   OrderCreatedEvent,
   OrderCreatedSymbol,
-} from 'src/event/order-created.event';
-import { PurchaseOrder } from 'src/model/purchase-order.entity';
+} from '../event/order-created.event';
 
 @Injectable()
 export class OrderService {

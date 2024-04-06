@@ -1,4 +1,4 @@
-import { OrderLineStatus } from 'src/model/order-line.entity';
+import { OrderLineStatus } from '../model/order-line.entity';
 
 export interface OrderLineItemResponseDto {
   id: number;

@@ -81,8 +81,8 @@ services:
 
   order-service:
     build:
-      context: ./order-service
-      dockerfile: ../.docker/order-service/Dockerfile
+      context: .
+      dockerfile: ./.docker/order-service/Dockerfile
     container_name: order-service
     ports:
       - 3000:3000

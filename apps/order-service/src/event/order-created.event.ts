@@ -1,4 +1,4 @@
-import { PurchaseOrder } from 'src/model/purchase-order.entity';
+import { PurchaseOrder } from '../model/purchase-order.entity';
 
 export const OrderCreatedSymbol = Symbol('OrderCreated');
 

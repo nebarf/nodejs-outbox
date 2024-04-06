@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { OrderCreatedEvent, OrderCreatedSymbol } from './order-created.event';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { OutboxEvent } from 'src/model/outbox-event.entity';
+import { OutboxEvent } from '../model/outbox-event.entity';
 
 @Injectable()
 export class OrderCreatedListener {
