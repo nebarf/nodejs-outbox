@@ -1,10 +1,7 @@
+import { HealthModule } from '@libs/health';
 import { Module } from '@nestjs/common';
-import { ShipmentServiceController } from './shipment-service.controller';
-import { ShipmentServiceService } from './shipment-service.service';
 
 @Module({
-  imports: [],
-  controllers: [ShipmentServiceController],
-  providers: [ShipmentServiceService],
+  imports: [HealthModule],
 })
 export class ShipmentServiceModule {}

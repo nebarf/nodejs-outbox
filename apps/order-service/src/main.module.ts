@@ -1,5 +1,4 @@
 import { Logger, Module } from '@nestjs/common';
-import { HealthController } from './health.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
@@ -8,6 +7,7 @@ import { ConfigService } from './config/config.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventsModule } from './event/events.module';
 import { RestModule } from './rest/rest.module';
+import { HealthModule } from '@libs/health';
 
 const logger = new Logger('Database');
 
@@ -15,12 +15,13 @@ const logger = new Logger('Database');
   imports: [
     EventEmitterModule.forRoot(),
     EventsModule,
+    HealthModule,
     RestModule,
     MikroOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        entities: ['./dist/apps/order-service/model'],
+        entities: ['./dist/apps/order-service/src/model'],
         entitiesTs: ['./src/model'],
         forceUtcTimezone: true,
         driver: PostgreSqlDriver,
@@ -36,7 +37,5 @@ const logger = new Logger('Database');
       }),
     }),
   ],
-  controllers: [HealthController],
-  providers: [],
 })
 export class MainModule {}

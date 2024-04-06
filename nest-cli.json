@@ -27,6 +27,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/shipment-service/tsconfig.app.json"
       }
+    },
+    "health": {
+      "type": "library",
+      "root": "libs/health",
+      "entryFile": "index",
+      "sourceRoot": "libs/health/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/health/tsconfig.lib.json"
+      }
     }
   }
 }

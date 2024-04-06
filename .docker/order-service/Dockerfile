@@ -15,4 +15,4 @@ ENV NODE_ENV production
 COPY --chown=node:node --from=builder /home/node/dist ./dist
 COPY --chown=node:node --from=builder /home/node/node_modules node_modules
 
-CMD ["node", "dist/apps/order-service/main"]
+CMD ["node", "dist/apps/order-service/src/main"]

@@ -17,6 +17,13 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {}
+    "paths": {
+      "@libs/health": [
+        "libs/health/src"
+      ],
+      "@libs/health/*": [
+        "libs/health/src/*"
+      ]
+    }
   }
 }
