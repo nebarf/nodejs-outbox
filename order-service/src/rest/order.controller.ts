@@ -6,14 +6,24 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateOrderDto } from './create-order.dto';
 import { UpdateOrderLineDto } from './update-order-line.dto';
+import { OrderService } from 'src/service/order.service';
+import { OrderMapperService } from './order-mapper.service';
+import { CreateOrderRequestDto } from './create-order-request.dto';
 
 @Controller('orders')
 export class OrderController {
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly orderMapper: OrderMapperService,
+  ) {}
+
   @Post()
-  createOrder(@Body() createOrderDto: CreateOrderDto) {
-    console.log('[OrderController] createOrder', createOrderDto);
+  async createOrder(@Body() createOrderDto: CreateOrderRequestDto) {
+    const order = this.orderMapper.fromCreateRequest(createOrderDto);
+    const persistedOrder = await this.orderService.addOrder(order);
+
+    return this.orderMapper.toResponse(persistedOrder);
   }
 
   @Put('/:orderId/lines/:orderLineId')
