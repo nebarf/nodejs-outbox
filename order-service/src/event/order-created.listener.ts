@@ -10,9 +10,24 @@ export class OrderCreatedListener {
 
   @OnEvent(OrderCreatedSymbol)
   handleOrderCreatedEvent(event: OrderCreatedEvent) {
-    console.log(event);
-
     const outboxEvent = new OutboxEvent();
+
+    outboxEvent.aggregateId = `${event.order.id}`;
+    outboxEvent.aggregateType = 'Order';
+    outboxEvent.type = 'OrderCreated';
+    outboxEvent.payload = {
+      id: event.order.id,
+      customerId: event.order.customerId,
+      orderDate: event.order.orderDate,
+      lineItems: event.order.lineItems.toArray().map((orderLine) => ({
+        id: orderLine.id,
+        item: orderLine.item,
+        quantity: orderLine.quantity,
+        totalPrice: orderLine.totalPrice,
+        status: orderLine.status,
+      })),
+    };
+
     this.entityManager.persist(outboxEvent);
   }
 }
