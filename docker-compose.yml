@@ -105,3 +105,30 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_DEBUG=true
+
+  shipment-service:
+    build:
+      context: .
+      dockerfile: ./.docker/shipment-service/Dockerfile
+    container_name: shipment-service
+    ports:
+      - 3001:3000
+    depends_on:
+      debezium-server:
+        condition: service_started
+      shipment-db:
+        condition: service_healthy
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - SERVER_PORT=3001
+      - DB_NAME=shipmentdb
+      - DB_SCHEMA=shipments
+      - DB_PORT=5432
+      - DB_HOST=shipment-db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DEBUG=true
