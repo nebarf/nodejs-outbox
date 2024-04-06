@@ -1,5 +1,5 @@
 import { Entity, JsonType, PrimaryKey, Property } from '@mikro-orm/core';
-import crypto from 'node:crypto';
+import * as crypto from 'node:crypto';
 
 @Entity()
 export class OutboxEvent {
