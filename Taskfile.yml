@@ -21,4 +21,4 @@ tasks:
   cancel-order-line:
     cmds:
       - >
-        curl -X PUT -H "Content-Type: application/json" --data @./resources/data/cancel-order-line-request.json http://localhost:3000/orders/1/lines/2
+        curl -X PUT -H "Content-Type: application/json" --data @./resources/data/cancel-order-line-request.json http://localhost:3000/orders/{{.ORDER_ID}}/lines/{{.ORDER_LINE_ID}}

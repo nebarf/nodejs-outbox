@@ -1,6 +1,6 @@
 {
-    "customerId" : 123,
-    "orderDate" : "2019-01-31T12:13:01",
+    "customerId" : 3,
+    "orderDate" : "2024-01-01T12:00:00",
     "lineItems" : [
         {
             "item" : "Debezium in Action",
