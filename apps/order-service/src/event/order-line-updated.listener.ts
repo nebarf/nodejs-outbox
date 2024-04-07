@@ -16,7 +16,7 @@ export class OrderLineUpdatedListener {
     const outboxEvent = new OutboxEvent();
 
     outboxEvent.aggregateId = `${event.orderId}`;
-    outboxEvent.aggregateType = 'Order';
+    outboxEvent.aggregateType = 'order';
     outboxEvent.type = 'OrderLineUpdated';
 
     outboxEvent.payload = {

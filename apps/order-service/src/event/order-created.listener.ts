@@ -13,7 +13,7 @@ export class OrderCreatedListener {
     const outboxEvent = new OutboxEvent();
 
     outboxEvent.aggregateId = `${event.order.id}`;
-    outboxEvent.aggregateType = 'Order';
+    outboxEvent.aggregateType = 'order';
     outboxEvent.type = 'OrderCreated';
 
     outboxEvent.payload = {

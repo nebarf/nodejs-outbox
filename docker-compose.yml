@@ -73,7 +73,7 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=orderdb
       - DATABASE_SCHEMA=orders
-      - DATABASE_OUTBOX_TABLE=outboxevent
+      - DATABASE_OUTBOX_TABLE=outbox_event
       - RABBITMQ_HOSTNAME=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=root
