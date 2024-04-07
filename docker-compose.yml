@@ -99,7 +99,7 @@ services:
     environment:
       - SERVER_PORT=3000
       - DB_NAME=orderdb
-      - DB_SCHEMA=order
+      - DB_SCHEMA=orders
       - DB_PORT=5432
       - DB_HOST=order-db
       - DB_USER=postgres

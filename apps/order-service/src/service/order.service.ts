@@ -6,6 +6,11 @@ import {
   OrderCreatedEvent,
   OrderCreatedSymbol,
 } from '../event/order-created.event';
+import { OrderLineStatus } from '../model/order-line.entity';
+import {
+  OrderLineUpdatedEvent,
+  OrderLineUpdatedSymbol,
+} from '../event/order-line-updated.event';
 
 @Injectable()
 export class OrderService {
@@ -21,8 +26,8 @@ export class OrderService {
       await this.entityManager.persistAndFlush(order);
 
       this.eventEmitter.emit(OrderCreatedSymbol, new OrderCreatedEvent(order));
-      await this.entityManager.flush();
 
+      await this.entityManager.flush();
       await this.entityManager.commit();
 
       return order;
@@ -30,5 +35,40 @@ export class OrderService {
       await this.entityManager.rollback();
       throw e;
     }
+  }
+
+  async updateOrderLine({
+    orderId,
+    orderLineId,
+    orderLineStatus,
+  }: {
+    orderId: number;
+    orderLineId: number;
+    orderLineStatus: OrderLineStatus;
+  }): Promise<PurchaseOrder> {
+    const order = await this.entityManager.findOneOrFail(
+      PurchaseOrder,
+      orderId,
+      { populate: ['lineItems'] },
+    );
+
+    const orderLineOldStatus = order.updateLineItemStatus(
+      orderLineId,
+      orderLineStatus,
+    );
+
+    this.eventEmitter.emit(
+      OrderLineUpdatedSymbol,
+      new OrderLineUpdatedEvent({
+        newStatus: orderLineStatus,
+        oldStatus: orderLineOldStatus,
+        orderId,
+        orderLineId,
+      }),
+    );
+
+    await this.entityManager.flush();
+
+    return order;
   }
 }

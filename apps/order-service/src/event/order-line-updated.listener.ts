@@ -4,12 +4,28 @@ import {
   OrderLineUpdatedEvent,
   OrderLineUpdatedSymbol,
 } from './order-line-updated.event';
+import { OutboxEvent } from '../model/outbox-event.entity';
+import { EntityManager } from '@mikro-orm/postgresql';
 
 @Injectable()
 export class OrderLineUpdatedListener {
+  constructor(private readonly entityManager: EntityManager) {}
+
   @OnEvent(OrderLineUpdatedSymbol)
   handleOrderLineUpdatedEvent(event: OrderLineUpdatedEvent) {
-    // handle and process "OrderCreatedEvent" event
-    console.log(event);
+    const outboxEvent = new OutboxEvent();
+
+    outboxEvent.aggregateId = `${event.orderId}`;
+    outboxEvent.aggregateType = 'Order';
+    outboxEvent.type = 'OrderLineUpdated';
+
+    outboxEvent.payload = {
+      orderId: event.orderId,
+      orderLineId: event.orderLineId,
+      oldStatus: event.oldStatus,
+      newStatus: event.newStatus,
+    };
+
+    this.entityManager.persist(outboxEvent);
   }
 }

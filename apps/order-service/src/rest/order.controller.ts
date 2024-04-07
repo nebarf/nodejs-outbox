@@ -27,16 +27,16 @@ export class OrderController {
   }
 
   @Put('/:orderId/lines/:orderLineId')
-  updateOrderLine(
+  async updateOrderLine(
     @Param('orderId', ParseIntPipe) orderId: number,
     @Param('orderLineId', ParseIntPipe) orderLineId: number,
     @Body() updateOrderLineDto: UpdateOrderLineDto,
   ) {
-    console.log(
-      '[OrderController] updateOrderLine',
+    const order = await this.orderService.updateOrderLine({
       orderId,
       orderLineId,
-      updateOrderLineDto,
-    );
+      orderLineStatus: updateOrderLineDto.newStatus,
+    });
+    return this.orderMapper.toResponse(order);
   }
 }
