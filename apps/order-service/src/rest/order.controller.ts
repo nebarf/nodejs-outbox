@@ -6,12 +6,14 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { UpdateOrderLineDto } from './update-order-line.dto';
+import {
+  UpdateOrderLineDto,
+  UpdateOrderLineParamsDto,
+} from './update-order-line.dto';
 import { OrderMapperService } from './order-mapper.service';
 import { CreateOrderRequestDto } from './create-order-request.dto';
 import { OrderService } from '../service/order.service';
 import { EntityNotFoundException } from '../errors/entity-not-found';
-import { UUID } from 'node:crypto';
 
 @Controller('orders')
 export class OrderController {
@@ -30,14 +32,13 @@ export class OrderController {
 
   @Put('/:orderId/lines/:orderLineId')
   async updateOrderLine(
-    @Param('orderId') orderId: UUID,
-    @Param('orderLineId') orderLineId: UUID,
+    @Param() params: UpdateOrderLineParamsDto,
     @Body() updateOrderLineDto: UpdateOrderLineDto,
   ) {
     try {
       const order = await this.orderService.updateOrderLine({
-        orderId,
-        orderLineId,
+        orderId: params.orderId,
+        orderLineId: params.orderLineId,
         orderLineStatus: updateOrderLineDto.newStatus,
       });
       return this.orderMapper.toResponse(order);
