@@ -22,28 +22,12 @@ export class OrderService {
   ) {}
 
   async addOrder(order: PurchaseOrder): Promise<PurchaseOrder> {
-    await this.entityManager.persist(order);
+    this.entityManager.persist(order);
     this.eventEmitter.emit(OrderCreatedSymbol, new OrderCreatedEvent(order));
 
     await this.entityManager.flush();
 
     return order;
-
-    // await this.entityManager.begin();
-
-    // try {
-    //   await this.entityManager.persistAndFlush(order);
-
-    //   this.eventEmitter.emit(OrderCreatedSymbol, new OrderCreatedEvent(order));
-
-    //   await this.entityManager.flush();
-    //   await this.entityManager.commit();
-
-    //   return order;
-    // } catch (e) {
-    //   await this.entityManager.rollback();
-    //   throw e;
-    // }
   }
 
   async updateOrderLine({
