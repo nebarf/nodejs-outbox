@@ -6,6 +6,7 @@ import {
   Property,
 } from '@mikro-orm/core';
 import { OrderLine, OrderLineStatus } from './order-line.entity';
+import { EntityNotFoundException } from '../errors/entity-not-found';
 
 @Entity()
 export class PurchaseOrder {
@@ -25,6 +26,11 @@ export class PurchaseOrder {
     const lineItem = this.lineItems.find(
       (lineItem) => lineItem.id === lineItemId,
     );
+    if (typeof lineItem === 'undefined' || lineItem === null) {
+      throw new EntityNotFoundException(
+        `Order line with id ${lineItemId} was not found`,
+      );
+    }
 
     const oldStatus = lineItem.status;
     lineItem.status = newStatus;

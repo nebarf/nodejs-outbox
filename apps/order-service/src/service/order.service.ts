@@ -11,6 +11,7 @@ import {
   OrderLineUpdatedEvent,
   OrderLineUpdatedSymbol,
 } from '../event/order-line-updated.event';
+import { EntityNotFoundException } from '../errors/entity-not-found';
 
 @Injectable()
 export class OrderService {
@@ -49,7 +50,11 @@ export class OrderService {
     const order = await this.entityManager.findOneOrFail(
       PurchaseOrder,
       orderId,
-      { populate: ['lineItems'] },
+      {
+        populate: ['lineItems'],
+        failHandler: () =>
+          new EntityNotFoundException(`Order with id ${orderId} was not found`),
+      },
     );
 
     const orderLineOldStatus = order.updateLineItemStatus(

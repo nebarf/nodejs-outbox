@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -10,6 +11,7 @@ import { UpdateOrderLineDto } from './update-order-line.dto';
 import { OrderMapperService } from './order-mapper.service';
 import { CreateOrderRequestDto } from './create-order-request.dto';
 import { OrderService } from '../service/order.service';
+import { EntityNotFoundException } from '../errors/entity-not-found';
 
 @Controller('orders')
 export class OrderController {
@@ -32,11 +34,18 @@ export class OrderController {
     @Param('orderLineId', ParseIntPipe) orderLineId: number,
     @Body() updateOrderLineDto: UpdateOrderLineDto,
   ) {
-    const order = await this.orderService.updateOrderLine({
-      orderId,
-      orderLineId,
-      orderLineStatus: updateOrderLineDto.newStatus,
-    });
-    return this.orderMapper.toResponse(order);
+    try {
+      const order = await this.orderService.updateOrderLine({
+        orderId,
+        orderLineId,
+        orderLineStatus: updateOrderLineDto.newStatus,
+      });
+      return this.orderMapper.toResponse(order);
+    } catch (err) {
+      if (err instanceof EntityNotFoundException) {
+        throw new NotFoundException(err.message);
+      }
+      throw err;
+    }
   }
 }

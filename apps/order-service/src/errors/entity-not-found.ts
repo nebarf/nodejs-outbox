@@ -1,6 +1,6 @@
-export class EntityNotFound extends Error {
+export class EntityNotFoundException extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'EntityNotFound';
+    this.name = 'EntityNotFoundException';
   }
 }
