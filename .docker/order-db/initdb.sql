@@ -3,19 +3,19 @@ CREATE SCHEMA orders;
 SET search_path TO orders;
 
 CREATE TABLE purchase_order (
-	id serial NOT NULL,
+	id uuid NOT NULL,
 	customer_id integer NOT NULL,
-	order_date timestamp NULL,
+	order_date timestamp NOT NULL,
 	CONSTRAINT purchase_order__pk PRIMARY KEY (id)
 );
 
 CREATE TABLE order_line (
-	id serial NOT NULL,
+	id uuid NOT NULL,
 	quantity integer NOT NULL,
-	total_price decimal(12, 2) NULL,
-	order_id integer NULL,
-	item varchar(255) NULL,
-	"status" varchar(255) NULL,
+	total_price decimal(12, 2) NOT NULL,
+	order_id uuid NOT NULL,
+	item varchar(255) NOT NULL,
+	"status" varchar(255) NOT NULL,
 	CONSTRAINT order_line__pk PRIMARY KEY (id),
 	CONSTRAINT order_line__status__enum_check CHECK (((status)::text = ANY ((ARRAY['ENTERED'::character varying, 'CANCELLED'::character varying, 'SHIPPED'::character varying])::text[])))
 );

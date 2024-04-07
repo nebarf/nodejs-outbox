@@ -3,7 +3,6 @@ import {
   Controller,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Put,
 } from '@nestjs/common';
@@ -12,6 +11,7 @@ import { OrderMapperService } from './order-mapper.service';
 import { CreateOrderRequestDto } from './create-order-request.dto';
 import { OrderService } from '../service/order.service';
 import { EntityNotFoundException } from '../errors/entity-not-found';
+import { UUID } from 'node:crypto';
 
 @Controller('orders')
 export class OrderController {
@@ -30,8 +30,8 @@ export class OrderController {
 
   @Put('/:orderId/lines/:orderLineId')
   async updateOrderLine(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Param('orderLineId', ParseIntPipe) orderLineId: number,
+    @Param('orderId') orderId: UUID,
+    @Param('orderLineId') orderLineId: UUID,
     @Body() updateOrderLineDto: UpdateOrderLineDto,
   ) {
     try {

@@ -3,8 +3,8 @@ import { OrderLineStatus } from '../model/order-line.entity';
 export const OrderLineUpdatedSymbol = Symbol('OrderLineUpdated');
 
 export class OrderLineUpdatedEvent {
-  readonly orderId: number;
-  readonly orderLineId: number;
+  readonly orderId: string;
+  readonly orderLineId: string;
   readonly newStatus: OrderLineStatus;
   readonly oldStatus: OrderLineStatus;
 
@@ -14,8 +14,8 @@ export class OrderLineUpdatedEvent {
     orderId,
     orderLineId,
   }: {
-    orderId: number;
-    orderLineId: number;
+    orderId: string;
+    orderLineId: string;
     newStatus: OrderLineStatus;
     oldStatus: OrderLineStatus;
   }) {

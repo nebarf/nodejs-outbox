@@ -9,7 +9,7 @@ CREATE TABLE consumed_message (
 );
 
 CREATE TABLE shipment (
-	id bigserial NOT NULL,
+	id uuid NOT NULL,
 	customer_id integer NOT NULL,
 	order_date timestamp NULL,
 	order_id integer NOT NULL,

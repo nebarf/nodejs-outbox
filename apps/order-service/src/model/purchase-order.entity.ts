@@ -5,13 +5,14 @@ import {
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
+import * as crypto from 'node:crypto';
 import { OrderLine, OrderLineStatus } from './order-line.entity';
 import { EntityNotFoundException } from '../errors/entity-not-found';
 
 @Entity()
 export class PurchaseOrder {
   @PrimaryKey()
-  id!: number;
+  id = crypto.randomUUID();
 
   @Property()
   customerId!: number;
@@ -22,7 +23,7 @@ export class PurchaseOrder {
   @OneToMany(() => OrderLine, 'order')
   lineItems = new Collection<OrderLine>(this);
 
-  updateLineItemStatus(lineItemId: number, newStatus: OrderLineStatus) {
+  updateLineItemStatus(lineItemId: string, newStatus: OrderLineStatus) {
     const lineItem = this.lineItems.find(
       (lineItem) => lineItem.id === lineItemId,
     );

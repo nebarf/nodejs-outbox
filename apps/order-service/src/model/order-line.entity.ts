@@ -1,10 +1,11 @@
 import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import * as crypto from 'node:crypto';
 import { PurchaseOrder } from './purchase-order.entity';
 
 @Entity()
 export class OrderLine {
   @PrimaryKey()
-  id!: number;
+  id = crypto.randomUUID();
 
   @Property()
   quantity!: number;

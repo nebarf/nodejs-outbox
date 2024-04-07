@@ -1,7 +1,7 @@
 import { OrderLineStatus } from '../model/order-line.entity';
 
 export interface OrderLineItemResponseDto {
-  id: number;
+  id: string;
   item: string;
   quantity: number;
   totalPrice: number;
@@ -9,7 +9,7 @@ export interface OrderLineItemResponseDto {
 }
 
 export interface OrderResponseDto {
-  id: number;
+  id: string;
   customerId: number;
   orderDate: Date;
   lineItems: OrderLineItemResponseDto[];

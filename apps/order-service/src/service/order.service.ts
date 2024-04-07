@@ -1,6 +1,7 @@
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UUID } from 'node:crypto';
 import { PurchaseOrder } from '../model/purchase-order.entity';
 import {
   OrderCreatedEvent,
@@ -21,21 +22,28 @@ export class OrderService {
   ) {}
 
   async addOrder(order: PurchaseOrder): Promise<PurchaseOrder> {
-    await this.entityManager.begin();
+    await this.entityManager.persist(order);
+    this.eventEmitter.emit(OrderCreatedSymbol, new OrderCreatedEvent(order));
 
-    try {
-      await this.entityManager.persistAndFlush(order);
+    await this.entityManager.flush();
 
-      this.eventEmitter.emit(OrderCreatedSymbol, new OrderCreatedEvent(order));
+    return order;
 
-      await this.entityManager.flush();
-      await this.entityManager.commit();
+    // await this.entityManager.begin();
 
-      return order;
-    } catch (e) {
-      await this.entityManager.rollback();
-      throw e;
-    }
+    // try {
+    //   await this.entityManager.persistAndFlush(order);
+
+    //   this.eventEmitter.emit(OrderCreatedSymbol, new OrderCreatedEvent(order));
+
+    //   await this.entityManager.flush();
+    //   await this.entityManager.commit();
+
+    //   return order;
+    // } catch (e) {
+    //   await this.entityManager.rollback();
+    //   throw e;
+    // }
   }
 
   async updateOrderLine({
@@ -43,8 +51,8 @@ export class OrderService {
     orderLineId,
     orderLineStatus,
   }: {
-    orderId: number;
-    orderLineId: number;
+    orderId: UUID;
+    orderLineId: string;
     orderLineStatus: OrderLineStatus;
   }): Promise<PurchaseOrder> {
     const order = await this.entityManager.findOneOrFail(
