@@ -23,6 +23,12 @@
       ],
       "@libs/health/*": [
         "libs/health/src/*"
+      ],
+      "@libs/events": [
+        "libs/events/src"
+      ],
+      "@libs/events/*": [
+        "libs/events/src/*"
       ]
     }
   }
