@@ -3,31 +3,32 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { OrderCreatedEvent, OrderCreatedSymbol } from './order-created.event';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { OutboxEvent } from '../model/outbox-event.entity';
+import { OrderCreatedExportedEvent } from '@libs/events/order-created-event';
+import { ExportedEventCodecService } from '@libs/events/exported-event-codec.service';
 
 @Injectable()
 export class OrderCreatedListener {
-  constructor(private readonly entityManager: EntityManager) {}
+  constructor(
+    private readonly entityManager: EntityManager,
+    private exportedEventCodec: ExportedEventCodecService,
+  ) {}
+
+  private toExportedEvent(event: OrderCreatedEvent): OrderCreatedExportedEvent {
+    const { order } = event;
+    const exportedEvent = OrderCreatedExportedEvent.of(order);
+
+    return exportedEvent;
+  }
 
   @OnEvent(OrderCreatedSymbol)
   handleOrderCreatedEvent(event: OrderCreatedEvent) {
+    const exportedEvent = this.toExportedEvent(event);
     const outboxEvent = new OutboxEvent();
 
-    outboxEvent.aggregateId = `${event.order.id}`;
+    outboxEvent.aggregateId = `${exportedEvent.id}`;
     outboxEvent.aggregateType = 'order';
-    outboxEvent.type = 'OrderCreated';
-
-    outboxEvent.payload = {
-      id: event.order.id,
-      customerId: event.order.customerId,
-      orderDate: event.order.orderDate,
-      lineItems: event.order.lineItems.toArray().map((orderLine) => ({
-        id: orderLine.id,
-        item: orderLine.item,
-        quantity: orderLine.quantity,
-        totalPrice: orderLine.totalPrice,
-        status: orderLine.status,
-      })),
-    };
+    outboxEvent.type = exportedEvent.eventType;
+    outboxEvent.payload = this.exportedEventCodec.toPlain(exportedEvent);
 
     this.entityManager.persist(outboxEvent);
   }
