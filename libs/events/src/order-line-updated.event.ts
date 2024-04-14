@@ -1,9 +1,11 @@
-import { IsEnum, IsString, Equals } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { EventType } from './event-type';
-import { ExportedEvent } from './exported-event';
+import { exportedEventBaseline } from './exported-event';
 import { OrderLineStatus } from './order-line-status';
 
-export class OrderLineUpdatedExportedEvent extends ExportedEvent<EventType.OrderLineUpdated> {
+export class OrderLineUpdatedExportedEvent extends exportedEventBaseline(
+  EventType.OrderLineUpdated,
+) {
   @IsString()
   readonly orderId: string;
 
@@ -15,9 +17,6 @@ export class OrderLineUpdatedExportedEvent extends ExportedEvent<EventType.Order
 
   @IsEnum(OrderLineStatus)
   readonly oldStatus: OrderLineStatus;
-
-  @Equals(EventType.OrderLineUpdated)
-  readonly eventType: EventType.OrderLineUpdated;
 
   constructor(
     orderId: string,

@@ -1,8 +1,10 @@
 import { IsDate, IsNumber, IsString } from 'class-validator';
 import { EventType } from './event-type';
-import { ExportedEvent } from './exported-event';
+import { exportedEventBaseline } from './exported-event';
 
-export class OrderCreatedExportedEvent extends ExportedEvent<EventType.OrderCreated> {
+export class OrderCreatedExportedEvent extends exportedEventBaseline(
+  EventType.OrderCreated,
+) {
   @IsString()
   readonly id: string;
 
