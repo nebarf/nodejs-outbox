@@ -5,12 +5,14 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { OutboxEvent } from '../model/outbox-event.entity';
 import { OrderCreatedExportedEvent } from '@libs/events/order-created-event';
 import { ExportedEventCodecService } from '@libs/events/exported-event-codec.service';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class OrderCreatedListener {
   constructor(
     private readonly entityManager: EntityManager,
-    private exportedEventCodec: ExportedEventCodecService,
+    private readonly exportedEventCodec: ExportedEventCodecService,
+    private readonly config: ConfigService,
   ) {}
 
   private toExportedEvent(event: OrderCreatedEvent): OrderCreatedExportedEvent {
@@ -26,7 +28,7 @@ export class OrderCreatedListener {
     const outboxEvent = new OutboxEvent();
 
     outboxEvent.aggregateId = `${exportedEvent.id}`;
-    outboxEvent.aggregateType = 'order';
+    outboxEvent.aggregateType = this.config.events.channel;
     outboxEvent.type = exportedEvent.eventType;
     outboxEvent.payload = this.exportedEventCodec.toPlain(exportedEvent);
 

@@ -105,6 +105,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_DEBUG=true
+      - EVENT_CHANNEL=order
 
   shipment-service:
     build:
