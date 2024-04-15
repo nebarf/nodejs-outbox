@@ -5,4 +5,4 @@ import { ConfigModule } from './config/config.module';
 @Module({
   imports: [HealthModule, ConfigModule],
 })
-export class ShipmentServiceModule {}
+export class MainModule {}
