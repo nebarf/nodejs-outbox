@@ -11,7 +11,7 @@ import { ExportedEventCodecService } from '@libs/events/exported-event-codec.ser
 import { ConfigService } from '../config/config.service';
 
 @Injectable()
-export class OrderLineUpdatedListener {
+export class OrderLineUpdatedEventListener {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly exportedEventCode: ExportedEventCodecService,
