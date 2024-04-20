@@ -12,7 +12,7 @@ CREATE TABLE shipment (
 	id uuid NOT NULL,
 	customer_id integer NOT NULL,
 	order_date timestamp NULL,
-	order_id integer NOT NULL,
+	order_id uuid NOT NULL,
 	CONSTRAINT shipment__pk PRIMARY KEY (id)
 );
 
