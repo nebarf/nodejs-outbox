@@ -8,6 +8,19 @@ import {
 } from 'class-transformer';
 import { serialize } from 'node:v8';
 
+export type ParseResult<T extends EventType, R extends ExportedEvent<T>> =
+  | { _tag: 'success'; instance: R }
+  | { _tag: 'failure'; error: string };
+
+export type ParseResultSuccess<
+  T extends EventType,
+  R extends ExportedEvent<T>,
+> = Extract<ParseResult<T, R>, { _tag: 'success' }>;
+export type ParseResultFailure<
+  T extends EventType,
+  R extends ExportedEvent<T>,
+> = Extract<ParseResult<T, R>, { _tag: 'failure' }>;
+
 export class ExportedEventCodec {
   toPlain<T extends EventType>(event: ExportedEvent<T>) {
     return instanceToPlain(event);
@@ -21,18 +34,30 @@ export class ExportedEventCodec {
     return this.toBuffer(event).toString();
   }
 
-  parse<T extends EventType>(
+  parse<T extends EventType, R extends ExportedEvent<T>>(
     event: unknown,
-    ctor: ClassConstructor<ExportedEvent<T>>,
-  ) {
+    ctor: ClassConstructor<R>,
+  ): ParseResult<T, R> {
     const instance = plainToInstance(ctor, event);
 
     const validationErrors = validateSync(instance);
     if (validationErrors.length > 0) {
-      throw new Error(validationErrors.toString());
+      return { _tag: 'failure', error: validationErrors.toString() };
     }
 
-    return instance;
+    return { _tag: 'success', instance };
+  }
+
+  isParseSuccess<T extends EventType, R extends ExportedEvent<T>>(
+    result: ParseResult<T, R>,
+  ): result is ParseResultSuccess<T, R> {
+    return result._tag === 'success';
+  }
+
+  isParseFailure<T extends EventType, R extends ExportedEvent<T>>(
+    result: ParseResult<T, R>,
+  ): result is ParseResultFailure<T, R> {
+    return result._tag === 'failure';
   }
 
   serialize<T extends EventType>(event: ExportedEvent<T>) {
