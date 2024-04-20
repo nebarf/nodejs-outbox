@@ -36,7 +36,7 @@ export class OrderService {
     orderLineStatus,
   }: {
     orderId: UUID;
-    orderLineId: string;
+    orderLineId: UUID;
     orderLineStatus: OrderLineStatus;
   }): Promise<PurchaseOrder> {
     const order = await this.entityManager.findOneOrFail(

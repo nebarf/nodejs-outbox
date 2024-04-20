@@ -1,10 +1,11 @@
+import { UUID } from 'crypto';
 import { OrderLineStatus } from '../model/order-line.entity';
 
 export const OrderLineUpdatedSymbol = Symbol('OrderLineUpdated');
 
 export class OrderLineUpdatedEvent {
-  readonly orderId: string;
-  readonly orderLineId: string;
+  readonly orderId: UUID;
+  readonly orderLineId: UUID;
   readonly newStatus: OrderLineStatus;
   readonly oldStatus: OrderLineStatus;
 
@@ -14,8 +15,8 @@ export class OrderLineUpdatedEvent {
     orderId,
     orderLineId,
   }: {
-    orderId: string;
-    orderLineId: string;
+    orderId: UUID;
+    orderLineId: UUID;
     newStatus: OrderLineStatus;
     oldStatus: OrderLineStatus;
   }) {
