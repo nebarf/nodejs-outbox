@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsUUID } from 'class-validator';
 import { EventType } from './event-type';
 import { exportedEventBaseline } from './exported-event';
 import { UUID } from 'crypto';
@@ -6,7 +6,7 @@ import { UUID } from 'crypto';
 export class OrderCreatedExportedEvent extends exportedEventBaseline(
   EventType.OrderCreated,
 ) {
-  @IsString()
+  @IsUUID('4')
   readonly id: UUID;
 
   @IsNumber()

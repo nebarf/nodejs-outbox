@@ -1,4 +1,4 @@
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsUUID } from 'class-validator';
 import { EventType } from './event-type';
 import { exportedEventBaseline } from './exported-event';
 import { OrderLineStatus } from './order-line-status';
@@ -7,10 +7,10 @@ import { UUID } from 'crypto';
 export class OrderLineUpdatedExportedEvent extends exportedEventBaseline(
   EventType.OrderLineUpdated,
 ) {
-  @IsString()
+  @IsUUID('4')
   readonly orderId: UUID;
 
-  @IsString()
+  @IsUUID('4')
   readonly orderLineId: UUID;
 
   @IsEnum(OrderLineStatus)
