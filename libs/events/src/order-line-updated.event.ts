@@ -2,15 +2,16 @@ import { IsEnum, IsString } from 'class-validator';
 import { EventType } from './event-type';
 import { exportedEventBaseline } from './exported-event';
 import { OrderLineStatus } from './order-line-status';
+import { UUID } from 'crypto';
 
 export class OrderLineUpdatedExportedEvent extends exportedEventBaseline(
   EventType.OrderLineUpdated,
 ) {
   @IsString()
-  readonly orderId: string;
+  readonly orderId: UUID;
 
   @IsString()
-  readonly orderLineId: string;
+  readonly orderLineId: UUID;
 
   @IsEnum(OrderLineStatus)
   readonly newStatus: OrderLineStatus;
@@ -19,8 +20,8 @@ export class OrderLineUpdatedExportedEvent extends exportedEventBaseline(
   readonly oldStatus: OrderLineStatus;
 
   constructor(
-    orderId: string,
-    orderLineId: string,
+    orderId: UUID,
+    orderLineId: UUID,
     newStatus: OrderLineStatus,
     oldStatus: OrderLineStatus,
   ) {
@@ -38,8 +39,8 @@ export class OrderLineUpdatedExportedEvent extends exportedEventBaseline(
     newStatus,
     oldStatus,
   }: {
-    orderId: string;
-    orderLineId: string;
+    orderId: UUID;
+    orderLineId: UUID;
     newStatus: OrderLineStatus;
     oldStatus: OrderLineStatus;
   }) {
