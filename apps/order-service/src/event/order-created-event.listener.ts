@@ -17,7 +17,11 @@ export class OrderCreatedEventListener {
 
   private toExportedEvent(event: OrderCreatedEvent): OrderCreatedExportedEvent {
     const { order } = event;
-    const exportedEvent = OrderCreatedExportedEvent.of(order);
+    const exportedEvent = OrderCreatedExportedEvent.of({
+      customerId: order.customerId,
+      id: order.id,
+      orderDate: order.orderDate.toISOString(),
+    });
 
     return exportedEvent;
   }
