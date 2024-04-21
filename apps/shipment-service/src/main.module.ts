@@ -5,6 +5,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { ConfigService } from './config/config.service';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
+import { EventsModule } from './event/events.module';
 
 const logger = new Logger('Database');
 
@@ -12,6 +13,7 @@ const logger = new Logger('Database');
   imports: [
     HealthModule,
     ConfigModule,
+    EventsModule,
     MikroOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
