@@ -115,8 +115,8 @@ services:
     ports:
       - 3001:3000
     depends_on:
-      debezium-server:
-        condition: service_started
+      rabbitmq:
+        condition: service_healthy
       shipment-db:
         condition: service_healthy
     healthcheck:
