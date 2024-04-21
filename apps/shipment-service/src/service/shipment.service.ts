@@ -14,7 +14,7 @@ export class ShipmentService {
     const shipment = new Shipment();
 
     shipment.customerId = event.customerId;
-    shipment.orderDate = event.orderDate;
+    shipment.orderDate = new Date(event.orderDate);
     shipment.orderId = event.id;
 
     this.entityManager.persist(shipment);
