@@ -133,3 +133,8 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_DEBUG=true
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=root
+      - RABBITMQ_PASSWORD=root
+      - RABBITMQ_ORDER_QUEUE=order.events
