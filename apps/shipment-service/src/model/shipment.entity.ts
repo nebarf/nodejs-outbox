@@ -9,8 +9,8 @@ export class Shipment {
   customerId!: number;
 
   @Property()
-  orderId!: number;
+  orderId!: string;
 
   @Property()
-  orderDate = new Date();
+  orderDate!: Date;
 }
