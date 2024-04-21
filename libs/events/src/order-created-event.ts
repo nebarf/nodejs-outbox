@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsUUID } from 'class-validator';
+import { IsNumber, IsUUID, IsISO8601 } from 'class-validator';
 import { EventType } from './event-type';
 import { exportedEventBaseline } from './exported-event';
 import { UUID } from 'crypto';
@@ -12,10 +12,10 @@ export class OrderCreatedExportedEvent extends exportedEventBaseline(
   @IsNumber()
   readonly customerId: number;
 
-  @IsDate()
-  readonly orderDate: Date;
+  @IsISO8601()
+  readonly orderDate: string;
 
-  constructor(id: UUID, customerId: number, orderDate: Date) {
+  constructor(id: UUID, customerId: number, orderDate: string) {
     super(EventType.OrderCreated);
 
     this.id = id;
@@ -30,7 +30,7 @@ export class OrderCreatedExportedEvent extends exportedEventBaseline(
   }: {
     id: UUID;
     customerId: number;
-    orderDate: Date;
+    orderDate: string;
   }) {
     return new OrderCreatedExportedEvent(id, customerId, orderDate);
   }
