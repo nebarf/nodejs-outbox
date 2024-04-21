@@ -1,7 +1,9 @@
-import { EventType } from '@libs/events/event-type';
-import { ExportedEventCodecService } from '@libs/events/exported-event-codec.service';
-import { OrderCreatedExportedEvent } from '@libs/events/order-created-event';
-import { OrderLineUpdatedExportedEvent } from '@libs/events/order-line-updated.event';
+import {
+  ExportedEventCodecService,
+  OrderCreatedExportedEvent,
+  OrderLineUpdatedExportedEvent,
+  EventType,
+} from '@libs/events';
 import {
   Injectable,
   Logger,

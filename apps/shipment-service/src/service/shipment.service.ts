@@ -1,5 +1,7 @@
-import { OrderCreatedExportedEvent } from '@libs/events/order-created-event';
-import { OrderLineUpdatedExportedEvent } from '@libs/events/order-line-updated.event';
+import {
+  OrderCreatedExportedEvent,
+  OrderLineUpdatedExportedEvent,
+} from '@libs/events';
 import { Injectable, Logger } from '@nestjs/common';
 import { Shipment } from '../model/shipment.entity';
 import { EntityManager } from '@mikro-orm/postgresql';

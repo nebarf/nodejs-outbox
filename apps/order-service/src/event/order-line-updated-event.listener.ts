@@ -6,8 +6,10 @@ import {
 } from './order-line-updated.event';
 import { OutboxEvent } from '../model/outbox-event.entity';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { OrderLineUpdatedExportedEvent } from '@libs/events/order-line-updated.event';
-import { ExportedEventCodecService } from '@libs/events/exported-event-codec.service';
+import {
+  OrderLineUpdatedExportedEvent,
+  ExportedEventCodecService,
+} from '@libs/events';
 import { ConfigService } from '../config/config.service';
 
 @Injectable()

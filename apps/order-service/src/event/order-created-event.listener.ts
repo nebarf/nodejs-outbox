@@ -3,8 +3,10 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { OrderCreatedEvent, OrderCreatedSymbol } from './order-created.event';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { OutboxEvent } from '../model/outbox-event.entity';
-import { OrderCreatedExportedEvent } from '@libs/events/order-created-event';
-import { ExportedEventCodecService } from '@libs/events/exported-event-codec.service';
+import {
+  OrderCreatedExportedEvent,
+  ExportedEventCodecService,
+} from '@libs/events';
 import { ConfigService } from '../config/config.service';
 
 @Injectable()
