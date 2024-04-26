@@ -11,13 +11,20 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ChannelWrapper, connect } from 'amqp-connection-manager';
-import { ConfirmChannel, ConsumeMessage, credentials } from 'amqplib';
+import {
+  ConfirmChannel,
+  ConsumeMessage,
+  MessagePropertyHeaders,
+  credentials,
+} from 'amqplib';
 import { CreateRequestContext } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { isUUID } from 'class-validator';
+import { isEnum, isUUID } from 'class-validator';
 import { MessageLogService } from '../service/message-log.service';
 import { ShipmentService } from '../service/shipment.service';
 import { ConfigService } from '../config/config.service';
+import { UUID } from 'node:crypto';
+import { Result, failure, isFailure, success } from '@libs/monads';
 
 @Injectable()
 export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
@@ -28,31 +35,39 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
     private readonly exportedEventCodec: ExportedEventCodecService,
     private readonly shipmentService: ShipmentService,
     private readonly messageLog: MessageLogService,
-    private readonly entityManager: EntityManager,
+    private readonly em: EntityManager,
     private readonly config: ConfigService,
   ) {
-    const connectionManager = connect(this.config.rabbit.host, {
+    const connectionManager = connect(`amqp://${this.config.rabbit.host}`, {
       connectionOptions: {
+        port: this.config.rabbit.port,
         credentials: credentials.plain(
           this.config.rabbit.user,
           this.config.rabbit.password,
         ),
       },
     });
-    const orderQueue = this.config.rabbit.orderQueue;
-
-    this.channel = connectionManager.createChannel({
-      setup: function (channel: ConfirmChannel) {
-        return channel.assertQueue(orderQueue, { durable: true });
-      },
-    });
+    this.channel = connectionManager.createChannel();
   }
 
   async onModuleInit() {
-    return this.channel.consume(
-      this.config.rabbit.orderQueue,
-      this.handleMessage.bind(this),
-    );
+    try {
+      await this.channel.addSetup(async (channel: ConfirmChannel) => {
+        await channel.assertQueue(this.config.rabbit.orderQueue, {
+          durable: true,
+        });
+
+        await channel.consume(
+          this.config.rabbit.orderQueue,
+          this.handleMessage.bind(this),
+        );
+
+        this.logger.log('Consumer setup completed.');
+      });
+      this.logger.log('Consumer service started and listening for messages.');
+    } catch (err) {
+      this.logger.error('Error starting the consumer:', err);
+    }
   }
 
   async onModuleDestroy() {
@@ -61,28 +76,18 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
 
   @CreateRequestContext()
   async handleMessage(message: ConsumeMessage) {
-    const eventType = message.properties.headers?.eventType;
-    const eventId = message.properties.headers?.id;
+    const eventMetaResult = this.getEventMeta(message.properties.headers);
 
-    if (
-      eventType !== EventType.OrderCreated &&
-      eventType !== EventType.OrderLineUpdated
-    ) {
-      this.logger.warn(`Unknown event type ${eventType}`);
+    if (isFailure(eventMetaResult)) {
+      this.logger.error(eventMetaResult.failure);
       return;
     }
 
-    if (isUUID(eventId, '4') === false) {
-      this.logger.error(
-        new Error(
-          `Expected event id to be of type UUID, got ${eventId} instead`,
-        ),
-      );
-      return;
-    }
+    const { eventId, eventType } = eventMetaResult.value;
 
     const wasEventAlreadyProcessed =
       await this.messageLog.wasAlreadyProcessed(eventId);
+
     if (wasEventAlreadyProcessed) {
       this.logger.warn(
         `Event with ${eventId} was already processed, skipping it`,
@@ -91,34 +96,93 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const payload = message.content.toString();
+    const payloadResult = this.getPayload(
+      message.content.toString(),
+      (v): v is Record<string, unknown> => typeof v === 'object',
+    );
+
+    if (isFailure(payloadResult)) {
+      this.logger.error(payloadResult.failure);
+      return;
+    }
 
     if (eventType === EventType.OrderCreated) {
       const parsedPayloadResult = this.exportedEventCodec.parse(
-        payload,
+        payloadResult.value,
         OrderCreatedExportedEvent,
       );
 
-      if (this.exportedEventCodec.isParseFailure(parsedPayloadResult)) {
-        this.logger.error(parsedPayloadResult.error);
+      if (isFailure(parsedPayloadResult)) {
+        this.logger.error(parsedPayloadResult.failure);
         return;
       }
-      this.shipmentService.orderCreated(parsedPayloadResult.instance);
+      this.shipmentService.orderCreated(parsedPayloadResult.value);
     }
 
     if (eventType === EventType.OrderLineUpdated) {
       const parsedPayloadResult = this.exportedEventCodec.parse(
-        payload,
+        payloadResult.value,
         OrderLineUpdatedExportedEvent,
       );
-      if (this.exportedEventCodec.isParseFailure(parsedPayloadResult)) {
-        this.logger.error(parsedPayloadResult.error);
+      if (isFailure(parsedPayloadResult)) {
+        this.logger.error(parsedPayloadResult.failure);
         return;
       }
-      this.shipmentService.orderLineUpdated(parsedPayloadResult.instance);
+      this.shipmentService.orderLineUpdated(parsedPayloadResult.value);
     }
 
     this.messageLog.markAsProcessed(eventId);
-    await this.entityManager.flush();
+    await this.em.flush();
+
+    this.channel.ack(message);
+  }
+
+  private getEventMeta(
+    headers: MessagePropertyHeaders | undefined,
+  ): Result<{ eventType: EventType; eventId: UUID }, Error> {
+    const eventTypeResult = this.getPayload(
+      headers?.eventType,
+      (v): v is EventType => isEnum(v, EventType),
+    );
+    if (isFailure(eventTypeResult)) {
+      return failure(eventTypeResult.failure);
+    }
+
+    const eventIdResult = this.getPayload(headers?.id, (v): v is UUID =>
+      isUUID(v, '4'),
+    );
+    if (isFailure(eventIdResult)) {
+      return failure(eventIdResult.failure);
+    }
+
+    const eventType = eventTypeResult.value;
+    const eventId = eventIdResult.value;
+
+    return success({ eventType, eventId });
+  }
+
+  private getPayload<T>(
+    envelop: string,
+    guard: (value: unknown) => value is T,
+    key = 'payload',
+  ): Result<T, Error> {
+    let plainEnvelop;
+
+    try {
+      plainEnvelop = JSON.parse(envelop);
+    } catch (err) {
+      return failure(new Error(`Failed to parse envelop to plain object`));
+    }
+
+    if (key in plainEnvelop === false) {
+      return failure(new Error(`Parsed envelop missing key ${key}`));
+    }
+
+    const payload = plainEnvelop[key];
+    if (guard(payload) === false) {
+      return failure(new Error('Payload does not match guard'));
+    }
+
+    return success(payload);
   }
 }
