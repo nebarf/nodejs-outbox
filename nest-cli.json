@@ -45,6 +45,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/events/tsconfig.lib.json"
       }
+    },
+    "monads": {
+      "type": "library",
+      "root": "libs/monads",
+      "entryFile": "index",
+      "sourceRoot": "libs/monads/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/monads/tsconfig.lib.json"
+      }
     }
   }
 }

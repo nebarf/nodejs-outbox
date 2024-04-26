@@ -29,6 +29,12 @@
       ],
       "@libs/events/*": [
         "libs/events/src/*"
+      ],
+      "@libs/monads": [
+        "libs/monads/src"
+      ],
+      "@libs/monads/*": [
+        "libs/monads/src/*"
       ]
     }
   }
