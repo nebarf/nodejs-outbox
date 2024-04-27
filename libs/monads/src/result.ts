@@ -8,13 +8,13 @@ interface ResultBaseline<T, E> {
 
   match<U>(matchPattern: Match<T, E, U>): U;
 
-  map<U>(mapper: (value: T) => U): ResultBaseline<U, E>;
+  map<U>(mapper: (value: T) => U): Result<U, E>;
 
-  mapFailure<F>(mapper: (failure: E) => F): ResultBaseline<T, F>;
+  mapFailure<F>(mapper: (failure: E) => F): Result<T, F>;
 
-  chain<U>(mapper: (value: T) => ResultBaseline<U, E>): ResultBaseline<U, E>;
+  chain<U>(mapper: (value: T) => Result<U, E>): Result<U, E>;
 
-  orElse<F>(mapper: (failure: E) => ResultBaseline<T, F>): ResultBaseline<T, F>;
+  orElse<F>(mapper: (failure: E) => Result<T, F>): Result<T, F>;
 }
 
 class Success<T, E> implements ResultBaseline<T, E> {
@@ -26,21 +26,19 @@ class Success<T, E> implements ResultBaseline<T, E> {
     return matchPattern.success(this.value);
   }
 
-  map<U>(mapper: (value: T) => U): ResultBaseline<U, E> {
+  map<U>(mapper: (value: T) => U): Result<U, E> {
     return success(mapper(this.value));
   }
 
-  mapFailure<F>(_mapper: (failure: E) => F): ResultBaseline<T, F> {
+  mapFailure<F>(_mapper: (failure: E) => F): Result<T, F> {
     return success(this.value);
   }
 
-  chain<U>(mapper: (value: T) => ResultBaseline<U, E>): ResultBaseline<U, E> {
+  chain<U>(mapper: (value: T) => Result<U, E>): Result<U, E> {
     return mapper(this.value);
   }
 
-  orElse<F>(
-    _mapper: (failure: E) => ResultBaseline<T, F>,
-  ): ResultBaseline<T, F> {
+  orElse<F>(_mapper: (failure: E) => Result<T, F>): Result<T, F> {
     return success(this.value);
   }
 }
@@ -54,21 +52,19 @@ class Failure<T, E> implements ResultBaseline<T, E> {
     return matchPattern.failure(this.failure);
   }
 
-  map<U>(_mapper: (value: T) => U): ResultBaseline<U, E> {
+  map<U>(_mapper: (value: T) => U): Result<U, E> {
     return failure(this.failure);
   }
 
-  mapFailure<F>(mapper: (failure: E) => F): ResultBaseline<T, F> {
+  mapFailure<F>(mapper: (failure: E) => F): Result<T, F> {
     return failure(mapper(this.failure));
   }
 
-  chain<U>(_mapper: (value: T) => ResultBaseline<U, E>): ResultBaseline<U, E> {
+  chain<U>(_mapper: (value: T) => Result<U, E>): Result<U, E> {
     return failure(this.failure);
   }
 
-  orElse<F>(
-    mapper: (failure: E) => ResultBaseline<T, F>,
-  ): ResultBaseline<T, F> {
+  orElse<F>(mapper: (failure: E) => Result<T, F>): Result<T, F> {
     return mapper(this.failure);
   }
 }

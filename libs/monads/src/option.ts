@@ -8,9 +8,9 @@ export interface OptionBaseline<T> {
 
   match<U>(matchPattern: Match<T, U>): U;
 
-  map<U>(mapper: (value: T) => U): OptionBaseline<U>;
+  map<U>(mapper: (value: T) => U): Option<U>;
 
-  chain<U>(mapper: (value: T) => OptionBaseline<U>): OptionBaseline<U>;
+  chain<U>(mapper: (value: T) => Option<U>): Option<U>;
 }
 
 class Some<T> implements OptionBaseline<T> {
@@ -22,11 +22,11 @@ class Some<T> implements OptionBaseline<T> {
     return matchPattern.some(this.value);
   }
 
-  map<U>(mapper: (value: T) => U): OptionBaseline<U> {
+  map<U>(mapper: (value: T) => U): Option<U> {
     return some(mapper(this.value));
   }
 
-  chain<U>(mapper: (value: T) => OptionBaseline<U>): OptionBaseline<U> {
+  chain<U>(mapper: (value: T) => Option<U>): Option<U> {
     return mapper(this.value);
   }
 }
@@ -38,11 +38,11 @@ class None<T> implements OptionBaseline<T> {
     return matchPattern.none();
   }
 
-  map<U>(_mapper: (value: T) => U): OptionBaseline<U> {
+  map<U>(_mapper: (value: T) => U): Option<U> {
     return none();
   }
 
-  chain<U>(_mapper: (value: T) => OptionBaseline<U>): OptionBaseline<U> {
+  chain<U>(_mapper: (value: T) => Option<U>): Option<U> {
     return none();
   }
 }
