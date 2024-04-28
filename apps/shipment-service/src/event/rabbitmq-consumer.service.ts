@@ -18,7 +18,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { MessageLogService } from '../service/message-log.service';
 import { ConfigService } from '../config/config.service';
 import { UUID } from 'node:crypto';
-import { Result, failure, isFailure, success } from '@libs/monads';
+import { Result, isFailure, tryCatch } from '@libs/monads';
 import { isNone } from '@libs/monads';
 import {
   ExportedEventHandlerResolver,
@@ -132,19 +132,17 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
       headers?.eventType,
       this.typeGuard.isEnum(EventType),
     );
-    if (isFailure(eventTypeResult)) {
-      return failure(eventTypeResult.failure);
-    }
 
     const eventIdResult = this.getPayload(headers?.id, this.typeGuard.isUUID);
-    if (isFailure(eventIdResult)) {
-      return failure(eventIdResult.failure);
-    }
 
-    const eventType = eventTypeResult.value;
-    const eventId = eventIdResult.value;
+    const eventMetaResult = eventTypeResult.chain((eventType) =>
+      eventIdResult.map((eventId) => ({
+        eventId,
+        eventType,
+      })),
+    );
 
-    return success({ eventType, eventId });
+    return eventMetaResult;
   }
 
   private getPayload<T>(
@@ -152,23 +150,11 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
     guard: (value: unknown) => value is T,
     key = 'payload',
   ): Result<T, Error> {
-    let plainEnvelop;
-
-    try {
-      plainEnvelop = JSON.parse(envelop);
-    } catch (err) {
-      return failure(new Error(`Failed to parse envelop to plain object`));
-    }
-
-    if (key in plainEnvelop === false) {
-      return failure(new Error(`Parsed envelop missing key ${key}`));
-    }
-
-    const payload = plainEnvelop[key];
-    if (guard(payload) === false) {
-      return failure(new Error('Payload does not match guard'));
-    }
-
-    return success(payload);
+    return tryCatch(
+      () => JSON.parse(envelop),
+      () => new Error(`Failed to parse envelop to plain object`),
+    )
+      .map((plainEnvelop) => plainEnvelop[key])
+      .filterOrElse(guard, () => new Error('Payload does not match guard'));
   }
 }
