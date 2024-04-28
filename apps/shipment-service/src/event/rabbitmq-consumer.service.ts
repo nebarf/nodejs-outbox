@@ -77,10 +77,11 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
 
   @CreateRequestContext()
   async handleMessage(message: ConsumeMessage) {
-    const eventMetaResult = this.getEventMeta(message.properties.headers);
+    const messageHeaders = message.properties.headers;
+    const eventMetaResult = this.getEventMeta(messageHeaders);
 
     if (isFailure(eventMetaResult)) {
-      this.logger.error(eventMetaResult.failure);
+      this.logger.error(eventMetaResult.failure, { messageHeaders });
       return;
     }
 
@@ -91,19 +92,20 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
 
     if (wasEventAlreadyProcessed) {
       this.logger.warn(
-        `Event with ${eventId} was already processed, skipping it`,
+        `Event with id "${eventId}" was already processed, skipping it`,
       );
       this.channel.ack(message);
       return;
     }
 
+    const messageContent = message.content.toString();
     const payloadResult = this.getPayload(
-      message.content.toString(),
+      messageContent,
       this.typeGuard.isRecord,
     );
 
     if (isFailure(payloadResult)) {
-      this.logger.error(payloadResult.failure);
+      this.logger.error(payloadResult.failure, { messageContent });
       return;
     }
 
