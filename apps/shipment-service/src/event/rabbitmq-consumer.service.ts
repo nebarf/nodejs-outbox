@@ -1,10 +1,6 @@
+import { EventType } from '@libs/events';
 import {
-  ExportedEventCodecService,
-  OrderCreatedExportedEvent,
-  OrderLineUpdatedExportedEvent,
-  EventType,
-} from '@libs/events';
-import {
+  Inject,
   Injectable,
   Logger,
   OnModuleDestroy,
@@ -21,10 +17,14 @@ import { CreateRequestContext } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { isEnum, isUUID } from 'class-validator';
 import { MessageLogService } from '../service/message-log.service';
-import { ShipmentService } from '../service/shipment.service';
 import { ConfigService } from '../config/config.service';
 import { UUID } from 'node:crypto';
 import { Result, failure, isFailure, success } from '@libs/monads';
+import { isNone } from '@libs/monads/option';
+import {
+  ExportedEventHandlerResolver,
+  ExportedEventHandlerResolverToken,
+} from './providers';
 
 @Injectable()
 export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
@@ -32,11 +32,11 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('RabbitMqConsumerService');
 
   constructor(
-    private readonly exportedEventCodec: ExportedEventCodecService,
-    private readonly shipmentService: ShipmentService,
     private readonly messageLog: MessageLogService,
     private readonly em: EntityManager,
     private readonly config: ConfigService,
+    @Inject(ExportedEventHandlerResolverToken)
+    private readonly exportedEventHandlerResolver: ExportedEventHandlerResolver,
   ) {
     const connectionManager = connect(`amqp://${this.config.rabbit.host}`, {
       connectionOptions: {
@@ -98,7 +98,7 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
 
     const payloadResult = this.getPayload(
       message.content.toString(),
-      (v): v is Record<string, unknown> => typeof v === 'object',
+      (v): v is Record<string, unknown> => typeof v === 'object' && v !== null,
     );
 
     if (isFailure(payloadResult)) {
@@ -106,29 +106,16 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    if (eventType === EventType.OrderCreated) {
-      const parsedPayloadResult = this.exportedEventCodec.parse(
-        payloadResult.value,
-        OrderCreatedExportedEvent,
-      );
-
-      if (isFailure(parsedPayloadResult)) {
-        this.logger.error(parsedPayloadResult.failure);
-        return;
-      }
-      this.shipmentService.orderCreated(parsedPayloadResult.value);
+    const handler = this.exportedEventHandlerResolver.resolve(eventType);
+    if (isNone(handler)) {
+      this.logger.error(new Error(`Missing handler for event ${eventType}`));
+      return;
     }
 
-    if (eventType === EventType.OrderLineUpdated) {
-      const parsedPayloadResult = this.exportedEventCodec.parse(
-        payloadResult.value,
-        OrderLineUpdatedExportedEvent,
-      );
-      if (isFailure(parsedPayloadResult)) {
-        this.logger.error(parsedPayloadResult.failure);
-        return;
-      }
-      this.shipmentService.orderLineUpdated(parsedPayloadResult.value);
+    const result = handler.value.handlePlain(payloadResult.value);
+    if (isFailure(result)) {
+      this.logger.error(result.failure);
+      return;
     }
 
     this.messageLog.markAsProcessed(eventId);
