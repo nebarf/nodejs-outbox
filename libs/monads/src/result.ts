@@ -1,3 +1,5 @@
+import { Lazy, Refinement } from './types';
+
 interface Match<T, E, U> {
   success: (value: T) => U;
   failure: (value: E) => U;
@@ -15,6 +17,11 @@ interface ResultBaseline<T, E> {
   chain<U>(mapper: (value: T) => Result<U, E>): Result<U, E>;
 
   orElse<F>(mapper: (failure: E) => Result<T, F>): Result<T, F>;
+
+  filterOrElse<U extends T>(
+    refinement: Refinement<T, U>,
+    onFalse: () => E,
+  ): Result<U, E>;
 }
 
 class Success<T, E> implements ResultBaseline<T, E> {
@@ -40,6 +47,17 @@ class Success<T, E> implements ResultBaseline<T, E> {
 
   orElse<F>(_mapper: (failure: E) => Result<T, F>): Result<T, F> {
     return success(this.value);
+  }
+
+  filterOrElse<U extends T>(
+    refinement: Refinement<T, U>,
+    onFalse: () => E,
+  ): Result<U, E> {
+    const matchShape = refinement(this.value);
+    if (matchShape) {
+      return success(this.value);
+    }
+    return failure(onFalse());
   }
 }
 
@@ -67,6 +85,13 @@ class Failure<T, E> implements ResultBaseline<T, E> {
   orElse<F>(mapper: (failure: E) => Result<T, F>): Result<T, F> {
     return mapper(this.failure);
   }
+
+  filterOrElse<U extends T>(
+    _refinement: Refinement<T, U>,
+    _onFalse: (a: E) => E,
+  ): Result<U, E> {
+    return failure(this.failure);
+  }
 }
 
 export type Result<T, E> = Success<T, E> | Failure<T, E>;
@@ -85,4 +110,17 @@ export function isSuccess<T, E>(result: Result<T, E>): result is Success<T, E> {
 
 export function isFailure<T, E>(result: Result<T, E>): result is Failure<T, E> {
   return result instanceof Failure;
+}
+
+export function tryCatch<T, E>(
+  fn: Lazy<T>,
+  onError: (err: unknown) => E,
+): Result<T, E> {
+  try {
+    const value = fn();
+    return success(value);
+  } catch (error) {
+    const mappedError = onError(error);
+    return failure(mappedError);
+  }
 }
