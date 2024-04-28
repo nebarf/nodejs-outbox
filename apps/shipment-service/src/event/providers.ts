@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { OrderCreatedEventHandler } from './order-created-event.handler';
 import { OrderLineUpdatedEventHandler } from './order-line-updated-event.handler';
 import { EventType } from '@libs/events';
-import { Option, fromNullish } from '@libs/monads/option';
+import { Option, fromNullish } from '@libs/monads';
 import { ExportedEventHandler } from './exported-event.handler';
 import { ExportedEvent } from '@libs/events/exported-event';
 

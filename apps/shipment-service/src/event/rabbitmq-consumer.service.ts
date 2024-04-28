@@ -19,7 +19,7 @@ import { MessageLogService } from '../service/message-log.service';
 import { ConfigService } from '../config/config.service';
 import { UUID } from 'node:crypto';
 import { Result, failure, isFailure, success } from '@libs/monads';
-import { isNone } from '@libs/monads/option';
+import { isNone } from '@libs/monads';
 import {
   ExportedEventHandlerResolver,
   ExportedEventHandlerResolverToken,
