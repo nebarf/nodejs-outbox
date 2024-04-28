@@ -15,7 +15,6 @@ import {
 } from 'amqplib';
 import { CreateRequestContext } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { isEnum, isUUID } from 'class-validator';
 import { MessageLogService } from '../service/message-log.service';
 import { ConfigService } from '../config/config.service';
 import { UUID } from 'node:crypto';
@@ -25,6 +24,7 @@ import {
   ExportedEventHandlerResolver,
   ExportedEventHandlerResolverToken,
 } from './providers';
+import { TypeGuardService } from '../service/type-guard.service';
 
 @Injectable()
 export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
@@ -35,6 +35,7 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
     private readonly messageLog: MessageLogService,
     private readonly em: EntityManager,
     private readonly config: ConfigService,
+    private typeGuard: TypeGuardService,
     @Inject(ExportedEventHandlerResolverToken)
     private readonly exportedEventHandlerResolver: ExportedEventHandlerResolver,
   ) {
@@ -98,7 +99,7 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
 
     const payloadResult = this.getPayload(
       message.content.toString(),
-      (v): v is Record<string, unknown> => typeof v === 'object' && v !== null,
+      this.typeGuard.isRecord,
     );
 
     if (isFailure(payloadResult)) {
@@ -129,15 +130,13 @@ export class RabbitMqConsumerService implements OnModuleInit, OnModuleDestroy {
   ): Result<{ eventType: EventType; eventId: UUID }, Error> {
     const eventTypeResult = this.getPayload(
       headers?.eventType,
-      (v): v is EventType => isEnum(v, EventType),
+      this.typeGuard.isEnum(EventType),
     );
     if (isFailure(eventTypeResult)) {
       return failure(eventTypeResult.failure);
     }
 
-    const eventIdResult = this.getPayload(headers?.id, (v): v is UUID =>
-      isUUID(v, '4'),
-    );
+    const eventIdResult = this.getPayload(headers?.id, this.typeGuard.isUUID);
     if (isFailure(eventIdResult)) {
       return failure(eventIdResult.failure);
     }

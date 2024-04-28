@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ShipmentService } from './shipment.service';
 import { MessageLogService } from './message-log.service';
+import { TypeGuardService } from './type-guard.service';
 
 @Module({
-  providers: [ShipmentService, MessageLogService],
-  exports: [ShipmentService, MessageLogService],
+  providers: [MessageLogService, TypeGuardService],
+  exports: [MessageLogService, TypeGuardService],
 })
 export class ServicesModule {}
