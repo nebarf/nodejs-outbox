@@ -137,4 +137,4 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=root
       - RABBITMQ_PASSWORD=root
-      - RABBITMQ_ORDER_QUEUE=order.events
+      - RABBITMQ_ORDER_QUEUE=shipment.orders
