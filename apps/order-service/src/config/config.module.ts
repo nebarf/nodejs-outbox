@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule as BaseConfigModule } from '@nestjs/config';
 import databaseConfig from './database.config';
 import serverConfig from './server.config';
-import eventsConfig from './events.config';
 import { ConfigService } from './config.service';
 
 @Module({
@@ -10,7 +9,7 @@ import { ConfigService } from './config.service';
     BaseConfigModule.forRoot({
       ignoreEnvFile: true,
       cache: true,
-      load: [databaseConfig, serverConfig, eventsConfig],
+      load: [databaseConfig, serverConfig],
     }),
   ],
   providers: [ConfigService],

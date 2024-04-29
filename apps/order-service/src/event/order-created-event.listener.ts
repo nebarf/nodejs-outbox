@@ -7,14 +7,12 @@ import {
   OrderCreatedExportedEvent,
   ExportedEventCodecService,
 } from '@libs/events';
-import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class OrderCreatedEventListener {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly exportedEventCodec: ExportedEventCodecService,
-    private readonly config: ConfigService,
   ) {}
 
   private toExportedEvent(event: OrderCreatedEvent): OrderCreatedExportedEvent {
@@ -34,7 +32,7 @@ export class OrderCreatedEventListener {
     const outboxEvent = new OutboxEvent();
 
     outboxEvent.aggregateId = `${exportedEvent.id}`;
-    outboxEvent.aggregateType = this.config.events.channel;
+    outboxEvent.aggregateType = 'order';
     outboxEvent.type = exportedEvent.eventType;
     outboxEvent.payload = this.exportedEventCodec.toPlain(exportedEvent);
 
