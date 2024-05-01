@@ -12,7 +12,7 @@ High level architecture mirrors the schema below.
 
 ![Architecture Overview](resources/images/architecture-overview.png)
 
-## Running locally
+## Run locally
 The only requirement to run the example locally is [Docker](https://www.docker.com/). Once you have Docker installed on your local machine, all services can be started by running
 
 ```console
@@ -23,6 +23,30 @@ The repository also includes a [Taskfile](Taskfile.yml) that aliases some comman
 
 ```console
 $ task bootstrap
+```
+
+## Call REST APIs
+
+[Data folder](resources/data) includes some static data that can be used as body of http requests. To create a new order you can perform the following http request against _order service_ APIs
+
+```console
+// Using cURL
+$ curl -X POST -H "Content-Type: application/json" --data @./resources/data/create-order-request.json http://localhost:3000/orders
+
+// Using Task runner
+$ task create-order
+```
+
+To cancel an order line that was previously created you can run
+
+```console
+// Using cURL.
+// Be sure to replace `:orderID` and `:orderLineId` with the actual values.
+$ curl -X PUT -H "Content-Type: application/json" --data @./resources/data/cancel-order-line-request.json http://localhost:3000/orders/:orderID/lines/:orderLineId
+
+// Using Task runner.
+// Be sure to provide the actual values to `ORDER_ID` and `ORDER_LINE_ID` env vars.
+$ task cancel-order-line ORDER_ID="replace-me" ORDER_LINE_ID="replace-me"
 ```
 
 ## Credits
