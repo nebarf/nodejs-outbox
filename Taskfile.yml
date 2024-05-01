@@ -39,9 +39,17 @@ tasks:
     cmds:
       - docker compose logs --follow order-db
 
+  order-db-session:
+    cmds:
+      - docker compose run --rm order-db psql -d postgres://postgres:postgres@order-db/orderdb
+
   shipment-db-logs:
     cmds:
       - docker compose logs --follow shipment-db
+
+  shipment-db-session:
+    cmds:
+      - docker compose run --rm shipment-db psql -d postgres://postgres:postgres@shipment-db/shipmentdb
 
   debezium-logs:
     cmds:
