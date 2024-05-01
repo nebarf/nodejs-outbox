@@ -22,3 +22,27 @@ tasks:
     cmds:
       - >
         curl -X PUT -H "Content-Type: application/json" --data @./resources/data/cancel-order-line-request.json http://localhost:3000/orders/{{.ORDER_ID}}/lines/{{.ORDER_LINE_ID}}
+
+  shipment-service-logs:
+    cmds:
+      - docker compose logs --follow shipment-service
+
+  order-service-logs:
+    cmds:
+      - docker compose logs --follow order-service
+
+  rabbitmq-logs:
+    cmds:
+      - docker compose logs --follow rabbitmq
+
+  order-db-logs:
+    cmds:
+      - docker compose logs --follow order-db
+
+  shipment-db-logs:
+    cmds:
+      - docker compose logs --follow shipment-db
+
+  debezium-logs:
+    cmds:
+      - docker compose logs --follow debezium-server
