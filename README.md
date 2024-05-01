@@ -30,10 +30,10 @@ $ task bootstrap
 [Data folder](resources/data) includes some static data that can be used as body of http requests. To create a new order you can perform the following http request against _order service_ APIs
 
 ```console
-// Using cURL
+// Using cURL.
 $ curl -X POST -H "Content-Type: application/json" --data @./resources/data/create-order-request.json http://localhost:3000/orders
 
-// Using Task runner
+// Using Task runner.
 $ task create-order
 ```
 
@@ -47,6 +47,49 @@ $ curl -X PUT -H "Content-Type: application/json" --data @./resources/data/cance
 // Using Task runner.
 // Be sure to provide the actual values to `ORDER_ID` and `ORDER_LINE_ID` env vars.
 $ task cancel-order-line ORDER_ID="replace-me" ORDER_LINE_ID="replace-me"
+```
+
+## Insights
+Following services logs you should be able to get some insights on what's happening under the hood while interacting with public APIs. Since both `order_service` and `shipment_service` run in debug mode, all SQL queries performed against the data store will be part of stdout stream.
+
+```console
+// order-service logs.
+$ docker compose logs --follow order-service
+
+// order-service logs with Task runner.
+$ task order-service-logs
+
+// shipment-service logs.
+$ docker compose logs --follow shipment-service
+
+// shipment-service logs with Task runner.
+$ task shipment-service-logs
+```
+
+To start an interactive session against order database and run queries you can do the following:
+
+```console
+// Interactive session using docker compose.
+$ docker compose run --rm order-db psql -d postgres://postgres:postgres@order-db/orderdb
+
+// Interactive session using Task runner.
+$ task order-db-cli
+
+// Run queries.
+$ select * from orders.purchase_order;
+```
+
+What's depicted right above closely applies to shipment database:
+
+```console
+// Interactive session using docker compose.
+$ docker compose run --rm shipment-db psql -d postgres://postgres:postgres@shipment-db/shipmentdb
+
+// Interactive session using Task runner.
+$ task shipment-db-cli
+
+// Run queries.
+$ select * from shipments.shipment;
 ```
 
 ## Credits
