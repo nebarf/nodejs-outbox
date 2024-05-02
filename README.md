@@ -6,7 +6,7 @@ Implementation of _transactional outbox pattern_, a method that allows to atomic
 - [RabbitMQ](https://www.rabbitmq.com) as events broker.
 - [PostgreSQL](https://www.postgresql.org/) as services data store.
 
-The example includes a _order service_ acting as events producer. It store events in an outbox table and performs regular business operations as part of the same database transaction. Debezium monitors the outbox table streaming new entries to RabbitMQ. The _shipment service_ acts as message consumer reading events from the broker.
+The implementation consists of an _order service_ acting as the events producer. It stores events in an outbox table and performs regular business operations as part of the same database transaction. Debezium monitors the outbox table while streaming new entries to RabbitMQ. The _shipment service_ acts as a message consumer reading events from the broker.
 
 High level architecture mirrors the schema below.
 
